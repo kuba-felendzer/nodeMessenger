@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "watch": true,
+        "lib": ["es2017"],
+        "outDir": "dist/"
+    }
+}
