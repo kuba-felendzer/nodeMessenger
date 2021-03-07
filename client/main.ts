@@ -28,6 +28,8 @@ function send(data: object): void {
 //on text input
 process.stdin.on("data", (data) => {
     var textrecived: string = data.toString().replace("\r\n", "")
+    console.log(`${chalk.red("ME")}: ${textrecived}`)
+    ready()
     send({ "intent": "message", "content": textrecived })
 })
 

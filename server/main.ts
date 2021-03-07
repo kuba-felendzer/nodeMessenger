@@ -16,9 +16,17 @@ wss.on("connection", (socket) => {
         socket.send(JSON.stringify(data))
     }
 
-    function broadcast(data: object) {
+    function broadcast(data: object): void {
         wss.clients.forEach(function each(client) {
             if (client.readyState === ws.OPEN) {
+                client.send(JSON.stringify(data));
+            }
+        });
+    }
+
+    function broadcastAllButSender(data: object) {
+        wss.clients.forEach(function each(client) {
+            if (client.readyState === ws.OPEN && client != socket) {
                 client.send(JSON.stringify(data));
             }
         });
@@ -28,8 +36,6 @@ wss.on("connection", (socket) => {
         var _data: recMessages = JSON.parse(data.toString());
         //delete _data.intent;
 
-        console.log(_data)
-
         if (_data.intent && _data.content) {
             switch (_data.intent) {
                 case "getUser":
@@ -37,7 +43,7 @@ wss.on("connection", (socket) => {
                     usercount++;
                     break;
                 case "message":
-                    broadcast({ "intent": "message", "content": _data.content })
+                    broadcastAllButSender({ "intent": "message", "content": _data.content })
             }
         }
     })
