@@ -5,6 +5,7 @@
         "moduleResolution": "node",
         "watch": true,
         "lib": ["es2017"],
+        "resolveJsonModule": true,
         "outDir": "dist/"
     }
 }
