@@ -1,0 +1,8 @@
+{
+    "serverPort": 8080,
+    "roomGreeeting": {
+        "color": "#FF0000",
+        "text": "Welcome to DEFAULT ROOM"
+    },
+    "roomPW": ""
+}

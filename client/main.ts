@@ -3,6 +3,9 @@ import * as config from "./config.json";
 import * as ws from "ws"
 import * as types from "../types";
 
+//serverData
+var serverData: types.dataFromServer
+
 //name string
 var name: string
 
@@ -34,6 +37,13 @@ async function init(): Promise<void> {
     //set open flag
     socketOpen = true;
 
+    connection.on("message", (msg) => {
+        var _msg: types.recMessages = JSON.parse(msg.toString())
+        if (_msg.intent == "serverData") {
+            serverData = <types.dataFromServer>_msg.content.data
+        }
+    })
+
     //gets name
     name = await new Promise((resolve) => {
         console.log(chalk.white("What do you want you username to be?"))
@@ -46,6 +56,9 @@ async function init(): Promise<void> {
 
     //greet user
     console.log(chalk.whiteBright(`Hello ${name}!`))
+
+    //room greeting
+    console.log(chalk.hex(serverData.greeting.color)(serverData.greeting.text))
 
     //on message
     connection.on("message", (msg) => {
@@ -67,14 +80,16 @@ async function init(): Promise<void> {
         //gets text recived
         var textrecived: string = data.toString().replace("\r\n", "")
 
-        //show you sent data
-        console.log(` ${chalk.red("ME")}: ${textrecived}`)
+        if (textrecived != "") {
+            //show you sent data
+            console.log(` ${chalk.red(`${name} (ME)`)}: ${chalk.blueBright(textrecived)}`)
+
+            //send the message to the server
+            send({ "intent": "message", "content": { "data": textrecived, "userid": name} })
+        }
 
         //display cursor
         ready()
-
-        //send the message to the server
-        send({ "intent": "message", "content": { "data": textrecived, "userid": name} })
     })
 }
 
