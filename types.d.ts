@@ -2,15 +2,10 @@
 interface recMessages {
     "intent": string,
     "content": {
-        "data": string | object,
-        "userid": string
+        "data": string | object | boolean,
+        "userid": string,
+        "password"?: string
     }
-}
-
-interface serverConfig {
-    "serverPort": number,
-    "roomName": string,
-    "roomPassword": string
 }
 
 interface dataFromServer {
@@ -18,7 +13,8 @@ interface dataFromServer {
         "color": string,
         "text": string
     },
-    "reqPassword": boolean
+    "reqPassword": boolean,
+    "roomName": string
 }
 
-export { recMessages, serverConfig, dataFromServer }
+export { recMessages, dataFromServer }

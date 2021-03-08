@@ -6,9 +6,6 @@ import * as types from "../types";
 //serverData
 var serverData: types.dataFromServer
 
-//name string
-var name: string
-
 //WS open flag
 var socketOpen = false
 
@@ -32,33 +29,78 @@ function send(data: types.recMessages): void {
     }
 }
 
-//runs everything needed to be run to get started
-async function init(): Promise<void> {
-    //set open flag
-    socketOpen = true;
-
-    connection.on("message", (msg) => {
-        var _msg: types.recMessages = JSON.parse(msg.toString())
-        if (_msg.intent == "serverData") {
-            serverData = <types.dataFromServer>_msg.content.data
-        }
-    })
-
-    //gets name
-    name = await new Promise((resolve) => {
-        console.log(chalk.white("What do you want you username to be?"))
+async function getUserText(message: string): Promise<string> {
+    return new Promise((resolve) => {
+        console.log(message)
         writeWithoutNewline(chalk.yellow(">"))
 
         process.stdin.on("data", (text) => {
             resolve(text.toString().replace("\r\n", ""))
         })
     })
+}
 
-    //greet user
-    console.log(chalk.whiteBright(`Hello ${name}!`))
+//runs everything needed to be run to get started
+async function init(): Promise<void> {
+    //set open flag
+    socketOpen = true;
+
+    //name string
+    var name: string
+
+    //password, if needed
+    var enteredPassword: string
+
+    //wait until server data arrives
+    await new Promise((resolve) => {
+        connection.on("message", (msg) => {
+            var _msg: types.recMessages = JSON.parse(msg.toString())
+            if (_msg.intent == "serverData") {
+                serverData = <types.dataFromServer>_msg.content.data
+                resolve("")
+            }
+        })
+    })
 
     //room greeting
     console.log(chalk.hex(serverData.greeting.color)(serverData.greeting.text))
+
+    //prompt user for password if room requires password
+    if (serverData.reqPassword == true) {
+
+        //store password
+        enteredPassword = await getUserText(chalk.whiteBright(`Enter password for ${serverData.roomName}`))
+
+        //ask server to verify password
+        connection.send(JSON.stringify({"intent": "checkPassword", "content": { "data": enteredPassword }}))
+
+        //check if password is correct
+        var passwordCorrect: boolean = await new Promise((resolve) => {
+
+            //wait for a responce to that message from earlier
+            connection.on("message", (msg) => {
+                //parse the string
+                var data: types.recMessages = JSON.parse(msg.toString())
+                
+                //resolve if the password is correct or not
+                if (data.intent == "checkPassword") {
+                    resolve(data.content.data == true)
+                }
+            })
+        })
+
+        //if password is incorrect, exit the proccess
+        if (passwordCorrect != true) {
+            console.log(chalk.red("Incorrect Password!"))
+            process.exit(0)
+        }
+    }
+
+    //gets name
+    name = await getUserText(chalk.whiteBright("What do you want you username to be?"))
+
+    //greet user
+    console.log(chalk.whiteBright(`Hello ${name}!`))
 
     //on message
     connection.on("message", (msg) => {
@@ -85,7 +127,7 @@ async function init(): Promise<void> {
             console.log(` ${chalk.red(`${name} (ME)`)}: ${chalk.blueBright(textrecived)}`)
 
             //send the message to the server
-            send({ "intent": "message", "content": { "data": textrecived, "userid": name} })
+            send({ "intent": "message", "content": { "data": textrecived, "userid": name, "password": enteredPassword} })
         }
 
         //display cursor
