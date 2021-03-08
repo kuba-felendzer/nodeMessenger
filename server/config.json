@@ -5,5 +5,9 @@
         "text": "Welcome to DEFAULT ROOM"
     },
     "roomPW": "password",
-    "roomName": "DEFAULT ROOM"
+    "roomName": "DEFAULT ROOM",
+    "colorOptions": {
+        "usernameColor": "#FF8000",
+        "textColor": "#03cffc"
+    }
 }
