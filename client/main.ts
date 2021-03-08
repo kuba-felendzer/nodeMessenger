@@ -35,7 +35,7 @@ async function getUserText(message: string): Promise<string> {
         writeWithoutNewline(chalk.hex(config.selectColor)(">"))
 
         process.stdin.on("data", (text) => {
-            let string = text.toString().replace("\r\n", "")
+            let string = text.toString().replace(/(\\r)|(\\n)/g, "")
             if (string != "") {
                 resolve(string)
             } else {
@@ -128,7 +128,7 @@ async function init(): Promise<void> {
     //on text input
     process.stdin.on("data", (data) => {
         //gets text recived
-        var textrecived: string = data.toString().replace("\r\n", "")
+        var textrecived: string = data.toString().replace(/(\\r)|(\\n)/g, "")
 
         if (textrecived != "") {
             //show you sent data
