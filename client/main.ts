@@ -12,6 +12,32 @@ var socketOpen = false
 //connection 
 const connection = new ws(config.serverAddr)
 
+connection.on("open", ()=> {
+    setInterval(async () => {
+        connection.send(JSON.stringify({ "intent": "ping" }))
+
+        var connectionOpen = await new Promise((resolve) => {
+            setTimeout(async ()=> {
+                resolve(false)
+            }, 3000)
+
+            connection.on("message", (msg) => {
+                let data = JSON.parse(msg.toString())
+
+                if (data.intent == "ping") {
+                    resolve(true)
+                }
+            })
+        })
+
+        if (connectionOpen != true) {
+            console.log(chalk.red("\nConnection Lost!"))
+            process.exit(0)
+        }
+
+    }, 10000)    
+})
+
 //console.log but it don't add a \n to the end
 function writeWithoutNewline(text: string): void {
     process.stdout.write(text)

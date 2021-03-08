@@ -61,6 +61,10 @@ wss.on("connection", (socket) => {
                     break;
                 case "checkPassword":
                     send({ "intent": _data.intent, "content": { "data": (_data.content.data == config.roomPW ? true : false), "userid": _data.content.userid } })
+                    break;
+                case "ping":
+                    send({ "intent": _data.intent, "content": { "data": true, "userid": null }})
+                    break;
             }
         }
     })
