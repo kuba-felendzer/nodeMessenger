@@ -1,4 +1,11 @@
 {
     "serverAddr": "ws://localhost:8080",
-    "yourColor": ""
+    "selectColor": "#FF1000",
+    "messageConfig": {
+        "myTextColor": "#3040AA",
+        "myNameColor": "#FF0000",
+        "otherTextColor": "#00FF00",
+        "otherNameColor": "#FF0000"
+    }
+    
 }

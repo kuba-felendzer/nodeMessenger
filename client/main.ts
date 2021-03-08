@@ -32,10 +32,17 @@ function send(data: types.recMessages): void {
 async function getUserText(message: string): Promise<string> {
     return new Promise((resolve) => {
         console.log(message)
-        writeWithoutNewline(chalk.yellow(">"))
+        writeWithoutNewline(chalk.hex(config.selectColor)(">"))
 
         process.stdin.on("data", (text) => {
-            resolve(text.toString().replace("\r\n", ""))
+            let string = text.toString().replace("\r\n", "")
+            if (string != "") {
+                resolve(string)
+            } else {
+                process.stdout.clearLine(0)
+                process.stdout.cursorTo(0)
+                writeWithoutNewline(chalk.hex(config.selectColor)(">"))
+            }
         })
     })
 }
@@ -108,7 +115,8 @@ async function init(): Promise<void> {
         switch (data.intent) {
             case "message":
                 process.stdout.clearLine(0)
-                console.log(`${chalk.red(data.content.userid)}: ${chalk.yellow(data.content.data)}`)
+                process.stdout.cursorTo(0)
+                console.log(`${chalk.hex(config.messageConfig.otherNameColor)(data.content.userid)}: ${chalk.hex(config.messageConfig.otherTextColor)(data.content.data)}`)
                 ready()
                 break;
         }   
@@ -124,7 +132,7 @@ async function init(): Promise<void> {
 
         if (textrecived != "") {
             //show you sent data
-            console.log(` ${chalk.red(`${name} (ME)`)}: ${chalk.blueBright(textrecived)}`)
+            console.log(`${chalk.hex(config.messageConfig.myNameColor)(`${name} (ME)`)}: ${chalk.hex(config.messageConfig.myTextColor)(textrecived)}`)
 
             //send the message to the server
             send({ "intent": "message", "content": { "data": textrecived, "userid": name, "password": enteredPassword} })
